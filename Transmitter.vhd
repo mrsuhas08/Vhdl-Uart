@@ -1,8 +1,42 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 12.12.2025 10:30:07
+-- Design Name: 
+-- Module Name: Tranmitter - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
 entity Tranmitter is
     Port(clk    :   in std_logic;
          rst    :   in std_logic;
          wr_en  :   in std_logic;
-         tx_en  :   in std_logic;
+         tx_en_t  :   in std_logic;
          din    :   in std_logic_vector(7 downto 0);
          
          tx     :   out std_logic;
@@ -11,11 +45,11 @@ entity Tranmitter is
 end Tranmitter;
 
 architecture Behavioral of Tranmitter is
-    
+
     signal p        :   std_logic                       := '0';
     signal temp     :   std_logic_vector(7 downto 0)    := (others => '0');
     signal count    :   unsigned(3 downto 0)            := (others => '0');
-    
+
     type fsm is(idle,
                 start,
                 data,
@@ -31,7 +65,7 @@ begin
     begin
         
         if rising_edge(clk) then
-            if rst = '1' then
+            if rst = '0' then
                 tx      <=  '1';
                 count   <=  (others => '0');
                 temp    <=  (others => '0');
@@ -54,8 +88,9 @@ begin
                     
                     when start =>
                     
-                        if tx_en = '1' then
+                        if tx_en_t = '1' then
                             tx      <=  '0';
+                            count   <=  (others => '0');
                             state   <=  data;
                             
                         else
@@ -65,34 +100,34 @@ begin
                         
                     when data =>
                         
-                        if tx_en = '1' then
+                        if tx_en_t = '1' then
                         
-                            if count = 8 then
+                            if count >= 0 and count <=7 then
+                                tx      <=  temp(0);
+                                temp    <=  '0' & temp(7 downto 1);
+                                count   <=  count + 1;
+                                
+                            elsif count = 8 then
+                                tx      <=  p;
                                 state   <=  parity;
                                 count   <=  (others => '0');
-                            else
-                                count   <=  count + 1;
-                                tx      <=  temp(TO_INTEGER(count));
                             end if;
                         
                         end if;
                     
                     when parity =>
                     
-                        if tx_en = '1' then
-						
-                            if count = 0 then
-                                tx      <=  p;
+                        if tx_en_t = '1' then
+                            if count >=0 then
                                 count   <=  count + 1;
+                                tx      <=  '1';
                                 state   <=  stop;
                             end if;
-							
                         end if;
                     
                     when stop =>
                         
-                        if tx_en = '1' then
-                            tx      <=  '1';
+                        if tx_en_t = '1' then
                             state   <=  idle;
                         end if;
                     
