@@ -36,7 +36,7 @@ entity Tranmitter is
     Port(clk    :   in std_logic;
          rst    :   in std_logic;
          wr_en  :   in std_logic;
-         tx_en_t  :   in std_logic;
+         tx_en  :   in std_logic;
          din    :   in std_logic_vector(7 downto 0);
          
          tx     :   out std_logic;
@@ -88,7 +88,7 @@ begin
                     
                     when start =>
                     
-                        if tx_en_t = '1' then
+                        if tx_en = '1' then
                             tx      <=  '0';
                             count   <=  (others => '0');
                             state   <=  data;
@@ -100,7 +100,7 @@ begin
                         
                     when data =>
                         
-                        if tx_en_t = '1' then
+                        if tx_en = '1' then
                         
                             if count >= 0 and count <=7 then
                                 tx      <=  temp(0);
@@ -117,7 +117,7 @@ begin
                     
                     when parity =>
                     
-                        if tx_en_t = '1' then
+                        if tx_en = '1' then
                             if count >=0 then
                                 count   <=  count + 1;
                                 tx      <=  '1';
@@ -127,7 +127,7 @@ begin
                     
                     when stop =>
                         
-                        if tx_en_t = '1' then
+                        if tx_en = '1' then
                             state   <=  idle;
                         end if;
                     
@@ -147,3 +147,4 @@ begin
     busy    <=  '1'     when state  /=   idle   else    '0';
 
 end Behavioral;
+
