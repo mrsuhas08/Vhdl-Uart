@@ -31,45 +31,40 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity Uart is
+entity UART_top is
     Port(clk        :   in std_logic;
          rst        :   in std_logic;
          
-         tx_en_b    :   out std_logic;--34
-         rx_en_b    :   out std_logic;--35
-         
          tx         :   out std_logic;--36
-         tx_en_t    :   in std_logic;--31
          
-         rx         :   in std_logic;--33
-         rx_en_r    :   in std_logic);--32
-end Uart;
+         rx         :   in std_logic);--33
+end UART_top;
 
-architecture Behavioral of Uart is
+architecture Behavioral of UART_top is
     
     component Baud_rate is
     Port(clk    :   in std_logic;
          rst    :   in std_logic;
          
-         tx_en_b:   out std_logic;
-         rx_en_b:   out std_logic);
+         tx_en  :   out std_logic;
+         rx_en  :   out std_logic);
     end component;
     
-    component Tranmitter is
+    component UART_tx is
         Port(clk    :   in std_logic;
              rst    :   in std_logic;
              wr_en  :   in std_logic;
-             tx_en_t:   in std_logic;
+             tx_en  :   in std_logic;
              din    :   in std_logic_vector(7 downto 0);
              
              tx     :   out std_logic;
              busy   :   out std_logic);    
     end component;
     
-    component Receiver is
+    component UART_rx is
         Port(clk    :   in std_logic;
              rst    :   in std_logic;
-             rx_en_r:   in std_logic;
+             rx_en  :   in std_logic;
              clr    :   in std_logic;
              rx     :   in std_logic;
              
@@ -115,22 +110,22 @@ begin
     baudrate:   Baud_rate
             port map(clk    =>  clk,
                      rst    =>  rst_vio,
-                     tx_en_b=>  tx_en_b,
-                     rx_en_b=>  rx_en_b);
+                     tx_en  =>  tx_temp,
+                     rx_en  =>  rx_temp);
     
-    trans:  Tranmitter
+    trans:  UART_tx
             port map(clk    =>  clk,
                      rst    =>  rst_vio,
-                     tx_en_t=>  tx_en_t,
+                     tx_en  =>  tx_temp,
                      wr_en  =>  wr_en,
                      din    =>  data_in,
                      tx     =>  tx,
                      busy   =>  busy);
     
-    receiv: Receiver
+    receiv: UART_rx
             port map(clk    =>  clk,
                      rst    =>  rst_vio,
-                     rx_en_r=>  rx_en_r,
+                     rx_en  =>  rx_temp,
                      clr    =>  clr,
                      rx     =>  rx,
                      rdy    =>  rdy,
@@ -138,14 +133,14 @@ begin
     
     signals: ila_0
             PORT MAP(clk => clk,
-                     probe0(0)  =>  tx_en_t, 
-                     probe1(0)  =>  rx_en_r, 
-                     probe2(0)  =>  rx, 
+                     probe0(0)  =>  tx_temp,
+                     probe1(0)  =>  rx_temp,
+                     probe2(0)  =>  tx_rx,
                      probe3(0)  =>  rdy,
                      probe4(0)  =>  busy,
                      probe5     =>  data_out);
     
-    your_instance_name : vio_0
+    inputs: vio_0
             PORT MAP(clk => clk,
                      probe_OUT0(0)  =>  rst_vio,
                      probe_OUT1(0)  =>  clr,
