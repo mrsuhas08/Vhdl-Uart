@@ -36,8 +36,8 @@ entity Baud_rate is
     Port(clk    :   in std_logic;
          rst    :   in std_logic;
          
-         tx_en_b:   out std_logic;
-         rx_en_b:   out std_logic);
+         tx_en  :   out std_logic;
+         rx_en  :   out std_logic);
 end Baud_rate;
 
 architecture Behavioral of Baud_rate is
@@ -75,7 +75,8 @@ begin
     
     end process;
     
-    tx_en_b <=  '1'     when tx_count   =   0   else    '0';
-    rx_en_b <=  '1'     when rx_count   =   0   else    '0';
+    tx_en    <=  '1'     when tx_count   =   0   else    '0';
+    rx_en    <=  '1'     when rx_count   =   0   else    '0';
     
 end Behavioral;
+
