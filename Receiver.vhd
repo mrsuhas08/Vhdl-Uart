@@ -35,7 +35,7 @@ use IEEE.numeric_std.ALL;
 entity Receiver is
     Port(clk    :   in std_logic;
          rst    :   in std_logic;
-         rx_en_r:   in std_logic;
+         rx_en  :   in std_logic;
          clr    :   in std_logic;
          rx     :   in std_logic;
          
@@ -78,7 +78,7 @@ begin
                 if clr = '1' then
                     rdy     <=  '0';
                 else
-                    if rx_en_r = '1' then
+                    if rx_en = '1' then
                         case state is
                             
                             when idle =>
@@ -187,3 +187,4 @@ begin
     end process;
 
 end Behavioral;
+
